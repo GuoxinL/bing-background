@@ -7,6 +7,8 @@ import os
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+# 图片保存路径
+IMAGE_PATH = '/home/guoxin/Pictures/wallpaper'
 
 def getDomain():
     return 'http://www.bing.com'
@@ -27,9 +29,10 @@ imageUrl = getDomain() + jsonObject["images"][0]["url"]
 currentFolder = os.getcwd()
 # 获得文件名称
 fileName = imageUrl.split('/')[-1]
-# 下载文件
-wget = 'wget -O ' + fileName + ' ' + imageUrl
+# 下载文件命令
+wget = 'wget -O ' + fileName + ' ' + imageUrl + ' -P ' + IMAGE_PATH
 os.system(wget)
+
 # Ubuntu 设置桌面壁纸命令
 gsettings = 'gsettings set org.gnome.desktop.background picture-uri file://' + currentFolder + '/' + fileName
 os.system(gsettings)
