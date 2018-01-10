@@ -5,34 +5,42 @@ import urllib2
 import os
 
 reload(sys)
-sys.setdefaultencoding('utf8')
 
-# 图片保存路径
-IMAGE_PATH = '/home/guoxin/Pictures/wallpaper'
+# 图片保存路径，请设置绝对路径
+IMAGE_SAVE_PATH = os.getcwd()
 
-def getDomain():
-    return 'http://www.bing.com'
-
-
-def getUrl():
-    return '/HPImageArchive.aspx?format=js&idx=0&n=1'
+TARGET_DOMAIN = 'http://www.bing.com'
+TARGET_URL = '/HPImageArchive.aspx?format=js&idx=0&n=1'
 
 
-# 请求路径
-requestUrl = getDomain() + getUrl()
-response = urllib2.urlopen(requestUrl)
-jsonString = response.read()
-jsonObject = json.loads(jsonString)
-# 图片路径
-imageUrl = getDomain() + jsonObject["images"][0]["url"]
-# 获得当前目录
-currentFolder = os.getcwd()
+# 获得图片路径
+def getImageUrl():
+    response = urllib2.urlopen(TARGET_DOMAIN + TARGET_URL)
+    jsonObject = json.loads(response.read())
+    return TARGET_DOMAIN + jsonObject["images"][0]["url"]
+
+
+# 创建保存图片路径
+def createImageSavePath():
+    if not os.path.exists(IMAGE_SAVE_PATH) :
+        os.makedirs(IMAGE_SAVE_PATH)
+
+
+
+createImageSavePath()
+
+imageUrl = getImageUrl()
+
 # 获得文件名称
 fileName = imageUrl.split('/')[-1]
 # 下载文件命令
-wget = 'wget -O ' + fileName + ' ' + imageUrl + ' -P ' + IMAGE_PATH
-os.system(wget)
+savePath = os.path.join(IMAGE_SAVE_PATH, fileName)
+
+imageFile = urllib2.urlopen(imageUrl)
+with open(savePath, 'wb') as output:
+    output.write(imageFile.read())
 
 # Ubuntu 设置桌面壁纸命令
-gsettings = 'gsettings set org.gnome.desktop.background picture-uri file://' + currentFolder + '/' + fileName
+gsettings = 'gsettings set org.gnome.desktop.background picture-uri \'file://' + savePath + '\''
+print(gsettings)
 os.system(gsettings)
